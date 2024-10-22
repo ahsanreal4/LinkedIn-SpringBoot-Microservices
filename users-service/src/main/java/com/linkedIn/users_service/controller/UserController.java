@@ -2,6 +2,7 @@ package com.linkedIn.users_service.controller;
 
 import com.linkedIn.users_service.dto.UpdateUserDto;
 import com.linkedIn.users_service.dto.UserDto;
+import com.linkedIn.users_service.dto.UserFileDto;
 import com.linkedIn.users_service.dto.UserProfileDto;
 import com.linkedIn.users_service.service.UserService;
 import com.linkedIn.users_service.utils.UserUtils;
@@ -10,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,9 +23,34 @@ public class UserController {
     private final UserUtils userUtils;
 
     public UserController(UserService userService, UserUtils userUtils) {
-        super();
         this.userService = userService;
         this.userUtils = userUtils;
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<String> uploadUserFile(@RequestParam("file") MultipartFile file, @RequestParam("fileType") String fileType, HttpServletRequest request) {
+        long userId = this.userUtils.getUserId(request);
+
+        String response = this.userService.uploadUserFile(file, fileType, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/files")
+    public ResponseEntity<List<UserFileDto>> getAllUserFiles(HttpServletRequest request) {
+        long userId = this.userUtils.getUserId(request);
+
+        List<UserFileDto> userFileDtos = this.userService.getAllFiles(userId);
+
+        return ResponseEntity.ok(userFileDtos);
+    }
+
+    @GetMapping("/files/{type}")
+    public ResponseEntity<UserFileDto> getFileByType(HttpServletRequest request, @PathVariable("type") String type) {
+        long userId = this.userUtils.getUserId(request);
+
+        UserFileDto userFileDto = this.userService.getFileByType(type, userId);
+
+        return ResponseEntity.ok(userFileDto);
     }
 
     @GetMapping("")

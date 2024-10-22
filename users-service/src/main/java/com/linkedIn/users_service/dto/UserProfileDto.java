@@ -14,4 +14,6 @@ public class UserProfileDto extends UserDto {
     private String professionalSummary;
     private String headLine;
     private LocalDate dob;
+    private String logo;
+    private String banner;
 }

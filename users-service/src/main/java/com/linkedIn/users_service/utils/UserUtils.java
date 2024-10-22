@@ -11,12 +11,12 @@ public class UserUtils {
     private final String EMAIL_KEY = "x-user-email";
     private final String IS_ADMIN_KEY = "x-user-admin";
 
-    public String getUserId(HttpServletRequest request) {
+    public Long getUserId(HttpServletRequest request) {
         String id = request.getHeader(ID_KEY);
 
         if (id == null || id.isEmpty()) throw new ApiException(HttpStatus.BAD_REQUEST, ID_KEY + " not found");
 
-        return id;
+        return Long.parseLong(id);
     }
 
     public String getUserEmail(HttpServletRequest request) {

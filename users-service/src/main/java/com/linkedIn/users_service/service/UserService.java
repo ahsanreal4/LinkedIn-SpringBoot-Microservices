@@ -2,7 +2,9 @@ package com.linkedIn.users_service.service;
 
 import com.linkedIn.users_service.dto.UpdateUserDto;
 import com.linkedIn.users_service.dto.UserDto;
+import com.linkedIn.users_service.dto.UserFileDto;
 import com.linkedIn.users_service.dto.UserProfileDto;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -16,4 +18,10 @@ public interface UserService {
     UserProfileDto getProfile(String email);
 
     List<UserDto> getUserFriends(String email);
+
+    String uploadUserFile(MultipartFile file, String fileType, long userId);
+
+    List<UserFileDto> getAllFiles(long userId);
+
+    UserFileDto getFileByType(String fileType, long userId);
 }

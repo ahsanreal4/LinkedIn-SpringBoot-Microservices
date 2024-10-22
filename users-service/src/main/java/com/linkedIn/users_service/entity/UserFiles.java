@@ -16,7 +16,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "file_id"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "type"})
 )
 public class UserFiles {
     @Id
@@ -30,12 +30,6 @@ public class UserFiles {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private UserFileType type;
-
-    @Column(nullable = false, length = 10)
-    private String extension;
-
-    @Column(nullable = false)
-    private Float sizeInMb;
 
     @Column(nullable = false)
     private String link;
