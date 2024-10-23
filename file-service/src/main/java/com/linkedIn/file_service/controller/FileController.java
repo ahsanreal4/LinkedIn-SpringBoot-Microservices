@@ -1,5 +1,6 @@
 package com.linkedIn.file_service.controller;
 
+import com.linkedIn.file_service.dto.BatchFileDeleteDto;
 import com.linkedIn.file_service.service.FileService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,11 @@ public class FileController {
         String url = this.fileService.uploadFile(file);
 
         return ResponseEntity.ok(url);
+    }
+
+    @PostMapping("/batch-delete")
+    public void batchDeleteFiles(@RequestBody BatchFileDeleteDto batchFileDeleteDto) {
+        this.fileService.deleteBatchFiles(batchFileDeleteDto.getFileIds());
     }
 
     @DeleteMapping("/{id}")

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
@@ -48,6 +49,20 @@ public class FileServiceImpl implements FileService {
         } catch (Exception e) {
             e.printStackTrace();
             throw new ApiException(HttpStatus.BAD_REQUEST, "File with id " + fileId + " was not found");
+        }
+    }
+
+    @Override
+    public void deleteBatchFiles(String[] fileIds) {
+        if (fileIds == null || fileIds.length == 0) throw new ApiException(HttpStatus.BAD_REQUEST, "fileIds not found or empty");
+
+        try {
+            cloudinary.api()
+                    .deleteResources(Arrays.asList(fileIds),
+                            ObjectUtils.emptyMap());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Error batch deleting files");
         }
     }
 }

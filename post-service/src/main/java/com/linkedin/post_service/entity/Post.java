@@ -45,4 +45,7 @@ public class Post {
     )
     private Set<PostLikes> likes = new HashSet<>();
 
+
+    @OneToOne(mappedBy = "post")
+    private PostFiles postFile;
 }

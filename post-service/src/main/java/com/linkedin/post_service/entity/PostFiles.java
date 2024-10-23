@@ -23,7 +23,7 @@ public class PostFiles {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false)
+    @OneToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Post post;
 

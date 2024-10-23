@@ -17,4 +17,5 @@ public class PostDto {
     private Integer numLikes;
     private boolean isLiked;
     private List<PostCommentDto> comments;
+    private String link;
 }

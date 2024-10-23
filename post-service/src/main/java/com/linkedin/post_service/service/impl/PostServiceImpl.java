@@ -4,14 +4,19 @@ import com.linkedin.post_service.dto.CreatePostDto;
 import com.linkedin.post_service.dto.PostDto;
 import com.linkedin.post_service.dto.comment.PostCommentDto;
 import com.linkedin.post_service.entity.Post;
+import com.linkedin.post_service.entity.PostFiles;
 import com.linkedin.post_service.entity.user.User;
+import com.linkedin.post_service.enums.PostFileType;
 import com.linkedin.post_service.exception.ApiException;
+import com.linkedin.post_service.feign_clients.impl.FileServiceClientImpl;
+import com.linkedin.post_service.repository.PostFilesRepository;
 import com.linkedin.post_service.repository.PostRepository;
 import com.linkedin.post_service.service.CommentService;
 import com.linkedin.post_service.service.PostLikeService;
 import com.linkedin.post_service.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -24,15 +29,20 @@ public class PostServiceImpl implements PostService {
     private final String CANNOT_DELETE_OTHER_POST = "cannot delete someone else post";
 
     private final PostRepository postRepository;
+    private final PostFilesRepository postFilesRepository;
     private final CommentService commentService;
     private final PostLikeService postLikeService;
 
-    public PostServiceImpl(PostRepository postRepository,
+    private final FileServiceClientImpl fileService;
+
+    public PostServiceImpl(PostRepository postRepository, PostFilesRepository postFilesRepository,
                            CommentService commentService,
-                           PostLikeService postLikeService) {
+                           PostLikeService postLikeService, FileServiceClientImpl fileService) {
         this.postRepository = postRepository;
+        this.postFilesRepository = postFilesRepository;
         this.commentService = commentService;
         this.postLikeService = postLikeService;
+        this.fileService = fileService;
     }
 
     @Override
@@ -77,6 +87,9 @@ public class PostServiceImpl implements PostService {
         postDto.setNumLikes(numLikes);
         postDto.setLiked(isLiked);
 
+        PostFiles postFiles = post.getPostFile();
+        if (postFiles != null) postDto.setLink(postFiles.getLink());
+
         return postDto;
     }
 
@@ -108,9 +121,74 @@ public class PostServiceImpl implements PostService {
 
         if (!isAdmin && !post.getPostedBy().getId().equals(userId)) throw new ApiException(HttpStatus.BAD_REQUEST, CANNOT_DELETE_OTHER_POST);
 
+        String fileUrl = null;
+
+        Optional<PostFiles> postFiles = postFilesRepository.findByPostId(post.getId());
+        if (postFiles.isPresent()) fileUrl = postFiles.get().getLink();
+
         postRepository.delete(post);
 
+        if (fileUrl == null) return "Post deleted successfully";
+
+        try {
+            String[] urlSplit = fileUrl.split("/");
+
+            String url = null;
+
+            if (urlSplit.length > 1){
+                String[] urlSplit2 = urlSplit[urlSplit.length - 1].split("\\.");
+
+                if(urlSplit2.length == 0) url = urlSplit[urlSplit.length - 1];
+                else url = urlSplit2[0];
+            }
+
+            if(url != null) fileService.deleteFileById(url);
+            else System.out.println("Invalid file url => " + fileUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error while deleting the post's file");
+        }
+
         return "Post deleted successfully";
+    }
+
+    @Override
+    public String uploadPostFile(MultipartFile file, String fileType, long postId, long userId) {
+        PostFileType postFileType;
+
+        try {
+            postFileType = PostFileType.valueOf(fileType.toUpperCase());
+        }
+        catch(IllegalArgumentException e){
+            e.printStackTrace();
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Invalid File Type. Only " + PostFileType.IMAGE + ", " + PostFileType.VIDEO + " are supported");
+        }
+
+        Optional<Post> optionalPost = postRepository.findById(postId);
+
+        if (optionalPost.isEmpty()) throw new ApiException(HttpStatus.NOT_FOUND, POST_DOES_NOT_EXIST);
+        else if(!optionalPost.get().getPostedBy().getId().equals(userId)) throw new ApiException(HttpStatus.BAD_REQUEST, "You cannot upload file for someone else's post");
+
+        String url;
+
+        try {
+            url = fileService.uploadFile(file);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while uploading file");
+        }
+
+
+        Post post = optionalPost.get();
+        PostFiles postFiles = new PostFiles();
+        postFiles.setPost(post);
+        postFiles.setType(postFileType);
+        postFiles.setLink(url);
+
+        postFilesRepository.save(postFiles);
+
+        return url;
     }
 
     private PostDto mapToDto(Post post) {

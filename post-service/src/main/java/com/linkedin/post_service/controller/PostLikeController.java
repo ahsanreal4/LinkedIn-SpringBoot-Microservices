@@ -27,7 +27,7 @@ public class PostLikeController {
 
     @PostMapping("")
     public ResponseEntity<String> likePost(@Valid @RequestBody CreateLikeDto createLikeDto, HttpServletRequest request) {
-        long userId = Long.parseLong(userUtils.getUserId(request));
+        long userId = userUtils.getUserId(request);
 
         String response = this.postLikeService.likePost(createLikeDto.getPostId(), userId);
 

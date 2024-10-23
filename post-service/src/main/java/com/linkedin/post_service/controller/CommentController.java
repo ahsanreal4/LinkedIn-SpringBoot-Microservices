@@ -25,7 +25,7 @@ public class CommentController {
 
     @PostMapping("")
     public ResponseEntity<PostCommentDto> addCommentToPost(@Valid @RequestBody CreatePostCommentDto createPostCommentDto, HttpServletRequest request) {
-        long userId = Long.parseLong(userUtils.getUserId(request));
+        long userId = userUtils.getUserId(request);
 
         PostCommentDto postCommentDto = this.commentService.addPostComment(createPostCommentDto, userId);
 
@@ -55,7 +55,7 @@ public class CommentController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCommentById(@PathVariable("id") long id, HttpServletRequest request) {
-        long userId = Long.parseLong(userUtils.getUserId(request));
+        long userId = userUtils.getUserId(request);
         boolean isAdmin = userUtils.isAdmin(request);
 
         String response = this.commentService.deleteCommentById(id, isAdmin, userId);
