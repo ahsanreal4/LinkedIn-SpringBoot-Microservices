@@ -1,6 +1,6 @@
-package com.linkedIn.users_service.exception;
+package com.linkedIn.company_job_service.exception;
 
-import com.linkedIn.users_service.dto.ErrorDetails;
+import com.linkedIn.company_job_service.dto.ErrorDetails;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
