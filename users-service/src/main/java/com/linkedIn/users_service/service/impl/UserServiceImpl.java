@@ -4,6 +4,7 @@ import com.linkedIn.users_service.dto.UpdateUserDto;
 import com.linkedIn.users_service.dto.UserDto;
 import com.linkedIn.users_service.dto.UserFileDto;
 import com.linkedIn.users_service.dto.UserProfileDto;
+import com.linkedIn.users_service.dto.resume.UserResumeDto;
 import com.linkedIn.users_service.entity.User;
 import com.linkedIn.users_service.entity.UserFiles;
 import com.linkedIn.users_service.entity.UserInfo;
@@ -150,16 +151,20 @@ public class UserServiceImpl implements UserService {
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while uploading file");
         }
 
-        Optional<UserFiles> optionalUserFiles = userFileRepository.findByUserIdAndType(userId, userFileType);
 
-        // If already present just update the link
-        if (optionalUserFiles.isPresent()) {
-            UserFiles userFile = optionalUserFiles.get();
-            userFile.setLink(url);
+        if (!userFileType.equals(UserFileType.RESUME)) {
+            Optional<UserFiles> optionalUserFiles = userFileRepository.findByUserIdAndType(userId, userFileType);
 
-            userFileRepository.save(userFile);
+            // If already present just update the link
+            // If file type resume then allow to upload more files
+            if (optionalUserFiles.isPresent()) {
+                UserFiles userFile = optionalUserFiles.get();
+                userFile.setLink(url);
 
-            return url;
+                userFileRepository.save(userFile);
+
+                return url;
+            }
         }
 
         User user = new User();
@@ -169,6 +174,7 @@ public class UserServiceImpl implements UserService {
         userFiles.setType(userFileType);
         userFiles.setLink(url);
         userFiles.setUser(user);
+        userFiles.setName(file.getOriginalFilename());
 
         userFileRepository.save(userFiles);
 
@@ -211,5 +217,21 @@ public class UserServiceImpl implements UserService {
         userFileDto.setLink(userFile.getLink());
 
         return userFileDto;
+    }
+
+    @Override
+    public List<UserResumeDto> getUserResumes(long userId) {
+        List<UserFiles> userFiles = userFileRepository.findByUserId(userId);
+
+        List<UserFiles> filteredFiles = userFiles.stream().filter(userFile -> userFile.getType().equals(UserFileType.RESUME)).toList();
+
+        return filteredFiles.stream().map(userFile -> {
+            UserResumeDto userResumeDto = new UserResumeDto();
+            userResumeDto.setId(userFile.getId());
+            userResumeDto.setName(userFile.getName());
+            userResumeDto.setLink(userFile.getLink());
+
+            return userResumeDto;
+        }).collect(Collectors.toList());
     }
 }

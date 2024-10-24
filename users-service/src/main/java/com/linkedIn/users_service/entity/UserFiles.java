@@ -15,13 +15,14 @@ import org.hibernate.annotations.OnDeleteAction;
 @NoArgsConstructor
 
 @Entity
-@Table(
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "type"})
-)
+@Table()
 public class UserFiles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column
+    private String name;
 
     @ManyToOne(optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)

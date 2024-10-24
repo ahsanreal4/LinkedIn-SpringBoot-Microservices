@@ -4,6 +4,7 @@ import com.linkedIn.users_service.dto.UpdateUserDto;
 import com.linkedIn.users_service.dto.UserDto;
 import com.linkedIn.users_service.dto.UserFileDto;
 import com.linkedIn.users_service.dto.UserProfileDto;
+import com.linkedIn.users_service.dto.resume.UserResumeDto;
 import com.linkedIn.users_service.service.UserService;
 import com.linkedIn.users_service.utils.UserUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,6 +52,15 @@ public class UserController {
         UserFileDto userFileDto = this.userService.getFileByType(type, userId);
 
         return ResponseEntity.ok(userFileDto);
+    }
+
+    @GetMapping("/resumes")
+    public ResponseEntity<List<UserResumeDto>> getUserResumes(HttpServletRequest request) {
+        long userId = this.userUtils.getUserId(request);
+
+        List<UserResumeDto> resumes = this.userService.getUserResumes(userId);
+
+        return ResponseEntity.ok(resumes);
     }
 
     @GetMapping("")
