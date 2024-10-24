@@ -1,5 +1,7 @@
 package com.linkedIn.api_gateway.config.security;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -22,18 +24,32 @@ public class JwtAuthenticationFilter implements WebFilter {
         this.jwtUtil = jwtUtil;
     }
 
+    private boolean isValidHeaders(ServerHttpRequest request) {
+        HttpHeaders headers = request.getHeaders();
+
+        if (headers.containsKey(ADMIN_KEY) || headers.containsKey(ID_KEY) || headers.containsKey(EMAIL_KEY)) return false;
+
+        return true;
+    }
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String token = extractToken(exchange);
 
+
         if (token != null && jwtUtil.validateToken(token)) {
+            ServerHttpRequest request = exchange.getRequest();
+
+            // If security breach in headers
+            if(!isValidHeaders(request)) return chain.filter(exchange);
+
             Claims claims = jwtUtil.extractClaims(token);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(claims.getSubject(), null, null);
 
             // Set headers to forward claims downstream
-            exchange.getRequest().mutate()
+            request.mutate()
                     .header(EMAIL_KEY, claims.get(EMAIL_KEY, String.class))
                     .header(ADMIN_KEY, String.valueOf(claims.get(ADMIN_KEY, Boolean.class)))
                     .header(ID_KEY, String.valueOf(claims.get(ID_KEY, Long.class)));

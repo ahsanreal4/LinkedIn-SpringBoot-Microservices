@@ -18,6 +18,8 @@ public interface UserService {
 
     UserProfileDto getProfile(String email);
 
+    UserProfileDto getProfileById(long userId);
+
     List<UserDto> getUserFriends(String email);
 
     String uploadUserFile(MultipartFile file, String fileType, long userId);

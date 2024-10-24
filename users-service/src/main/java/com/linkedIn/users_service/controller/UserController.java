@@ -100,6 +100,13 @@ public class UserController {
         return ResponseEntity.ok(userProfileDto);
     }
 
+    @GetMapping("/profile/{id}")
+    public ResponseEntity<UserProfileDto> getUserProfileById(@PathVariable("id") long id) {
+        UserProfileDto userProfileDto = this.userService.getProfileById(id);
+
+        return ResponseEntity.ok(userProfileDto);
+    }
+
     @GetMapping("/friends")
     public ResponseEntity<List<UserDto>> getUserFriends(HttpServletRequest request) {
         String email = userUtils.getUserEmail(request);

@@ -1,5 +1,6 @@
 package com.linkedIn.company_job_service.entity.company;
 
+import com.linkedIn.company_job_service.entity.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,9 @@ public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User createdBy;
 
     @Column(nullable = false, length = 100, unique = true)
     private String name;

@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface CompanyService {
-    void createCompany(CreateCompanyDto createCompanyDto);
+    void createCompany(CreateCompanyDto createCompanyDto, long userId);
     void addCompanyLocations(CreateCompanyLocationsDto createCompanyLocationsDto);
     String uploadCompanyFile(MultipartFile file, long companyId, String fileType);
     void updateCompany(UpdateCompanyDto updateCompanyDto, long companyId);
@@ -16,6 +16,6 @@ public interface CompanyService {
     CompanyDto getCompanyById(long companyId);
     List<CompanyDto> getAllCompanies();
     DetailedCompanyDto getCompanyDetailedData(long companyId);
-    void deleteCompanyById(long companyId);
+    void deleteCompanyById(long companyId, long userId, boolean isAdmin);
     void deleteCompanyLocation(long companyLocationId);
 }

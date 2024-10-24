@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class CompanyDto {
     private long id;
+    private long createdBy;
     private String name;
     private String numEmployees;
     private String about;

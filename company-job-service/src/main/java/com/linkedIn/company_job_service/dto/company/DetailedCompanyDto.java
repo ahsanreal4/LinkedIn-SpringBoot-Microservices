@@ -8,6 +8,7 @@ public class DetailedCompanyDto {
     private long id;
     private String name;
     private String numEmployees;
+    private long createdBy;
     private String about;
     private String headLine;
     private String website;

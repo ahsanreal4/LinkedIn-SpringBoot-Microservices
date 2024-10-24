@@ -10,6 +10,7 @@ import com.linkedIn.company_job_service.dto.company.locations.UpdateCompanyLocat
 import com.linkedIn.company_job_service.entity.company.Company;
 import com.linkedIn.company_job_service.entity.company.CompanyFiles;
 import com.linkedIn.company_job_service.entity.company.CompanyLocations;
+import com.linkedIn.company_job_service.entity.user.User;
 import com.linkedIn.company_job_service.enums.CompanyFileType;
 import com.linkedIn.company_job_service.exception.ApiException;
 import com.linkedIn.company_job_service.feign_clients.impl.FileServiceClientImpl;
@@ -43,14 +44,18 @@ public class CompanyServiceImpl implements CompanyService {
 
 
     @Override
-    public void createCompany(CreateCompanyDto createCompanyDto) {
+    public void createCompany(CreateCompanyDto createCompanyDto, long userId) {
         if (!EmployeeRanges.isValidEmployeeRange(createCompanyDto.getNumEmployees())) throw new ApiException(HttpStatus.BAD_REQUEST, "Invalid employee range. " +
                 EmployeeRanges.LOW + ", " + EmployeeRanges.MEDIUM + ", " + EmployeeRanges.HIGH + ", " + EmployeeRanges.ENTERPRISE + " are the valid employee ranges");
 
 
+        User user = new User();
+        user.setId(userId);
+
         Company company = new Company();
         company.setName(createCompanyDto.getName());
         company.setNumEmployees(createCompanyDto.getNumEmployees());
+        company.setCreatedBy(user);
         if(createCompanyDto.getAbout() != null) company.setAbout(createCompanyDto.getAbout());
         if(createCompanyDto.getWebsite() != null) company.setAbout(createCompanyDto.getWebsite());
         if(createCompanyDto.getHeadLine() != null) company.setAbout(createCompanyDto.getHeadLine());
@@ -95,6 +100,9 @@ public class CompanyServiceImpl implements CompanyService {
         companyDto.setHeadLine(company.getHeadLine());
         companyDto.setNumEmployees(company.getNumEmployees());
 
+        User user = company.getCreatedBy();
+        companyDto.setCreatedBy(user.getId());
+
         Set<CompanyFiles> companyFilesSet = company.getFiles();
         if (companyFilesSet == null || companyFilesSet.isEmpty()) return companyDto;
 
@@ -135,6 +143,9 @@ public class CompanyServiceImpl implements CompanyService {
         dto.setHeadLine(company.getHeadLine());
         dto.setNumEmployees(company.getNumEmployees());
 
+        User user = company.getCreatedBy();
+        dto.setCreatedBy(user.getId());
+
         setCompanyFiles(dto, company);
         setCompanyLocations(dto, company);
 
@@ -157,8 +168,11 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public void deleteCompanyById(long companyId) {
+    public void deleteCompanyById(long companyId, long userId, boolean isAdmin) {
         Company company = returnCompanyOrThrowError(companyId);
+
+        User user = company.getCreatedBy();
+        if (!user.getId().equals(userId) && !isAdmin) throw new ApiException(HttpStatus.BAD_REQUEST, "You cannot delete someone else company");
 
         Set<CompanyFiles> companyFilesSet = company.getFiles();
 

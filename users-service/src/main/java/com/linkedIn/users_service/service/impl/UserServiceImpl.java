@@ -101,17 +101,18 @@ public class UserServiceImpl implements UserService {
 
         User user = optionalUser.get();
 
-        UserProfileDto userProfileDto = modelMapper.map(user, UserProfileDto.class);
-        UserInfo userInfo = user.getUserInfo();
-        if(userInfo != null) modelMapper.map(userInfo, userProfileDto);
+        return mapUserToProfileDto(user);
+    }
 
-        Optional<UserFiles> optionalLogo = userFileRepository.findByUserIdAndType(user.getId(), UserFileType.LOGO);
-        Optional<UserFiles> optionalBanner = userFileRepository.findByUserIdAndType(user.getId(), UserFileType.BANNER);
+    @Override
+    public UserProfileDto getProfileById(long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
 
-        optionalLogo.ifPresent(userFiles -> userProfileDto.setLogo(userFiles.getLink()));
-        optionalBanner.ifPresent(userFiles -> userProfileDto.setBanner(userFiles.getLink()));
+        if(optionalUser.isEmpty()) throw new ApiException(HttpStatus.NOT_FOUND, "user with id " + userId + " was not found");
 
-        return userProfileDto;
+        User user = optionalUser.get();
+
+        return mapUserToProfileDto(user);
     }
 
     @Override
@@ -233,5 +234,19 @@ public class UserServiceImpl implements UserService {
 
             return userResumeDto;
         }).collect(Collectors.toList());
+    }
+
+    private UserProfileDto mapUserToProfileDto(User user) {
+        UserProfileDto userProfileDto = modelMapper.map(user, UserProfileDto.class);
+        UserInfo userInfo = user.getUserInfo();
+        if(userInfo != null) modelMapper.map(userInfo, userProfileDto);
+
+        Optional<UserFiles> optionalLogo = userFileRepository.findByUserIdAndType(user.getId(), UserFileType.LOGO);
+        Optional<UserFiles> optionalBanner = userFileRepository.findByUserIdAndType(user.getId(), UserFileType.BANNER);
+
+        optionalLogo.ifPresent(userFiles -> userProfileDto.setLogo(userFiles.getLink()));
+        optionalBanner.ifPresent(userFiles -> userProfileDto.setBanner(userFiles.getLink()));
+
+        return userProfileDto;
     }
 }

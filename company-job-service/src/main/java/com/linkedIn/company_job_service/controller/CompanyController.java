@@ -4,6 +4,8 @@ import com.linkedIn.company_job_service.dto.company.*;
 import com.linkedIn.company_job_service.dto.company.locations.CreateCompanyLocationsDto;
 import com.linkedIn.company_job_service.dto.company.locations.UpdateCompanyLocationDto;
 import com.linkedIn.company_job_service.service.CompanyService;
+import com.linkedIn.company_job_service.utils.UserUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,14 +18,19 @@ import java.util.List;
 public class CompanyController {
 
     private final CompanyService companyService;
+    private final UserUtils userUtils;
 
-    public CompanyController(CompanyService companyService) {
+    public CompanyController(CompanyService companyService,
+                             UserUtils userUtils) {
         this.companyService = companyService;
+        this.userUtils = userUtils;
     }
 
     @PostMapping("")
-    public void createCompany(@Valid @RequestBody CreateCompanyDto createCompanyDto) {
-        this.companyService.createCompany(createCompanyDto);
+    public void createCompany(@Valid @RequestBody CreateCompanyDto createCompanyDto, HttpServletRequest request) {
+        long userId = userUtils.getUserId(request);
+
+        this.companyService.createCompany(createCompanyDto, userId);
     }
 
     @PostMapping("/locations")
@@ -50,7 +57,9 @@ public class CompanyController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<CompanyDto>> getAllCompanies() {
+    public ResponseEntity<List<CompanyDto>> getAllCompanies(HttpServletRequest request) {
+        userUtils.shouldBeAdmin(request);
+
         List<CompanyDto> dtos = this.companyService.getAllCompanies();
 
         return ResponseEntity.ok(dtos);
@@ -71,8 +80,11 @@ public class CompanyController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCompanyById(@PathVariable("id") long id) {
-        this.companyService.deleteCompanyById(id);
+    public void deleteCompanyById(@PathVariable("id") long id, HttpServletRequest request) {
+        long userId = this.userUtils.getUserId(request);
+        boolean isAdmin = this.userUtils.isAdmin(request);
+
+        this.companyService.deleteCompanyById(id, userId, isAdmin);
     }
 
     @DeleteMapping("/locations/{id}")

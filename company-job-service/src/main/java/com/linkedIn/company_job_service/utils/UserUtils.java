@@ -27,6 +27,9 @@ public class UserUtils {
         return email;
     }
 
+    public boolean isAdmin(HttpServletRequest request) {
+        return Boolean.parseBoolean(request.getHeader(IS_ADMIN_KEY));
+    }
     public void shouldBeAdmin(HttpServletRequest request) {
         boolean isAdmin = Boolean.parseBoolean(request.getHeader(IS_ADMIN_KEY));
         if (!isAdmin) throw new ApiException(HttpStatus.FORBIDDEN, "Only admins are allowed to access this endpoint.");
