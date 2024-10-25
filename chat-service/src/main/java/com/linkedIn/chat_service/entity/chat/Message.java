@@ -23,6 +23,12 @@ public class Message {
     private Chat chat;
 
     @Column(nullable = false)
+    private Long senderId;
+
+    @Column(nullable = false)
+    private Long receiverId;
+
+    @Column(nullable = false)
     private String text;
 
     @Column(nullable = false)

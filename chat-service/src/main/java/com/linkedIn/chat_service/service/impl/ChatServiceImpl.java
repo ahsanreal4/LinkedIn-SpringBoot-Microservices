@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 @Service
 public class ChatServiceImpl implements ChatService {
 
+//    private final SimpMessagingTemplate messagingTemplate;
+
     private final ChatRepository chatRepository;
     private final MessageRepository messageRepository;
     private final UserServiceClientImpl userServiceClient;
@@ -58,35 +60,48 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public void createMessage(CreateMessageDto createMessageDto) {
-        Chat chat = new Chat();
-        chat.setId(createMessageDto.getChatId());
+    public void createMessage(CreateMessageDto createMessageDto, long userId) {
+        Chat chat = returnChatOrThrowError(createMessageDto.getChatId());
+
+        long senderId = chat.getSender().getId();
+        long receiverId = chat.getReceiver().getId();
+
+        long messageReceiverId;
+
+        if (userId == senderId) {
+            messageReceiverId = receiverId;
+        }
+        else {
+            messageReceiverId = senderId;
+        }
 
         Message message = new Message();
         message.setChat(chat);
         message.setText(createMessageDto.getText());
         message.setSentAt(new Date());
+        message.setSenderId(userId);
+        message.setReceiverId(messageReceiverId);
 
-        try {
-            messageRepository.save(message);
-        }
-        catch (DataIntegrityViolationException e) {
-            e.printStackTrace();
-            throw new ApiException(HttpStatus.NOT_FOUND, "chat with id " + createMessageDto.getChatId() + " was not found");
-        }
+//        messagingTemplate.convertAndSendToUser(String.valueOf(messageReceiverId), "/queue/messages", message);
+
+        messageRepository.save(message);
     }
 
     @Override
-    public void updateMessage(UpdateMessageDto updateMessageDto, long messageId) {
+    public void updateMessage(UpdateMessageDto updateMessageDto, long messageId, long userId) {
         Message message = returnMessageOrThrowError(messageId);
+        if (message.getSenderId() != userId) throw new ApiException(HttpStatus.BAD_REQUEST, "you cannot update someone else message");
+
         message.setText(updateMessageDto.getText());
 
         messageRepository.save(message);
     }
 
     @Override
-    public void deleteMessageById(long messageId) {
+    public void deleteMessageById(long messageId, long userId) {
         Message message = returnMessageOrThrowError(messageId);
+        if (message.getSenderId() != userId) throw new ApiException(HttpStatus.BAD_REQUEST, "you cannot delete someone else message");
+
         messageRepository.delete(message);
     }
 
@@ -143,6 +158,8 @@ public class ChatServiceImpl implements ChatService {
         dto.setId(message.getId());
         dto.setText(message.getText());
         dto.setSentAt(message.getSentAt());
+        dto.setSenderId(message.getSenderId());
+        dto.setReceiverId(message.getReceiverId());
 
         return dto;
     }

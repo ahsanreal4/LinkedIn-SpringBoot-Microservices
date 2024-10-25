@@ -9,10 +9,10 @@ import java.util.List;
 
 public interface ChatService {
     void createChat(CreateChatDto createChatDto, long userId);
-    void createMessage(CreateMessageDto createMessageDto);
-    void updateMessage(UpdateMessageDto updateMessageDto, long messageId);
+    void createMessage(CreateMessageDto createMessageDto, long userId);
+    void updateMessage(UpdateMessageDto updateMessageDto, long messageId, long userId);
     List<ChatDto> getAllChatsByUserId(long userId);
     ChatDto getChatById(long chatId);
     void deleteChatById(long chatId, long userId, boolean isAdmin);
-    void deleteMessageById(long messageId);
+    void deleteMessageById(long messageId, long userId);
 }

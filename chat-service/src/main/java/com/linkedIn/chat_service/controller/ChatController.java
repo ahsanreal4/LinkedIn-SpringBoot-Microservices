@@ -33,13 +33,17 @@ public class ChatController {
     }
 
     @PostMapping("/messages")
-    public void createMessage(@Valid @RequestBody CreateMessageDto createMessageDto) {
-        this.chatService.createMessage(createMessageDto);
+    public void createMessage(@Valid @RequestBody CreateMessageDto createMessageDto, HttpServletRequest request) {
+        long userId = userUtils.getUserId(request);
+
+        this.chatService.createMessage(createMessageDto, userId);
     }
 
     @PutMapping("/messages/{id}")
-    public void updateMessage(@Valid @RequestBody UpdateMessageDto updateMessageDto, @PathVariable("id") long messageId) {
-        this.chatService.updateMessage(updateMessageDto, messageId);
+    public void updateMessage(@Valid @RequestBody UpdateMessageDto updateMessageDto, @PathVariable("id") long messageId, HttpServletRequest request) {
+        long userId = userUtils.getUserId(request);
+
+        this.chatService.updateMessage(updateMessageDto, messageId, userId);
     }
 
     @GetMapping("")
@@ -67,7 +71,9 @@ public class ChatController {
     }
 
     @DeleteMapping("/messages/{id}")
-    public void deleteMessageById(@PathVariable("id") long messageId) {
-        this.chatService.deleteMessageById(messageId);
+    public void deleteMessageById(@PathVariable("id") long messageId, HttpServletRequest request) {
+        long userId = this.userUtils.getUserId(request);
+
+        this.chatService.deleteMessageById(messageId, userId);
     }
 }
