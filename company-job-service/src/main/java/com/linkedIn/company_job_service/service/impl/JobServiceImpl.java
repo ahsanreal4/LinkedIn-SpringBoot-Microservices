@@ -15,7 +15,7 @@ import com.linkedIn.company_job_service.repository.CategoryRepository;
 import com.linkedIn.company_job_service.repository.company.CompanyRepository;
 import com.linkedIn.company_job_service.repository.job.JobRepository;
 import com.linkedIn.company_job_service.service.JobService;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -109,6 +109,23 @@ public class JobServiceImpl implements JobService {
     public List<JobDto> getJobsByCategory(long categoryId) {
         Category category = returnCategoryOrThrowError(categoryId);
         List<Job> jobs = jobRepository.findByCategoryId(category.getId());
+
+        return jobs.stream().map(this::mapToJobDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<JobDto> getJobsSortedByDate(String sortDirection) {
+        Sort.Direction sortDirectionType;
+
+        try {
+            sortDirectionType = Sort.Direction.valueOf(sortDirection.toUpperCase());
+        }
+        catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Invalid sortType. Only " + Sort.Direction.ASC + ", " + Sort.Direction.DESC + " are allowed");
+        }
+
+        List<Job> jobs = jobRepository.findAll(Sort.by(sortDirectionType, "postedAt"));
 
         return jobs.stream().map(this::mapToJobDto).collect(Collectors.toList());
     }
