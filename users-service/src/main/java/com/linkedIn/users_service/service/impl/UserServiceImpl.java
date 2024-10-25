@@ -49,6 +49,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDto getUserById(long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        if(optionalUser.isEmpty()) throw new ApiException(HttpStatus.NOT_FOUND, "user with id " + userId + " was not found");
+
+        return modelMapper.map(optionalUser.get(), UserDto.class);
+    }
+
+    @Override
     public List<UserDto> getUsers() {
         List<User> users = this.userRepository.findAll();
 
