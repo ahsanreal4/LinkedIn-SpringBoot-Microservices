@@ -47,6 +47,11 @@ public class JobController {
         return ResponseEntity.ok(this.jobService.getJobsByCategory(categoryId));
     }
 
+    @GetMapping("/company/{id}")
+    public ResponseEntity<List<JobDto>> getJobsByCompany(@PathVariable("id") long companyId) {
+        return ResponseEntity.ok(this.jobService.getJobsByCompanyId(companyId));
+    }
+
     @GetMapping("/sorted/{sortType}")
     public ResponseEntity<List<JobDto>> getJobsBySortedDate(@PathVariable("sortType") String sortType) {
         return ResponseEntity.ok(this.jobService.getJobsSortedByDate(sortType));

@@ -14,6 +14,7 @@ public interface JobService {
     DetailedJobDto getDetailedJobById(long jobId);
     List<JobDto> getAllJobs();
     List<JobDto> getJobsByCategory(long categoryId);
+    List<JobDto> getJobsByCompanyId(long companyId);
     List<JobDto> getJobsSortedByDate(String sortDirection);
     void deleteJobById(long jobId, long userId, boolean isAdmin);
 }

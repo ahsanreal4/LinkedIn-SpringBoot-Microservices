@@ -88,7 +88,7 @@ public class JobServiceImpl implements JobService {
     public JobDto getJobById(long jobId) {
         Job job = returnJobOrThrowError(jobId);
 
-        return mapToJobDto(job);
+        return mapToJobDto(job, true);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class JobServiceImpl implements JobService {
     public List<JobDto> getAllJobs() {
         List<Job> jobs = this.jobRepository.findAll();
 
-        return jobs.stream().map(this::mapToJobDto).collect(Collectors.toList());
+        return jobs.stream().map(job -> mapToJobDto(job,true)).collect(Collectors.toList());
     }
 
     @Override
@@ -110,7 +110,15 @@ public class JobServiceImpl implements JobService {
         Category category = returnCategoryOrThrowError(categoryId);
         List<Job> jobs = jobRepository.findByCategoryId(category.getId());
 
-        return jobs.stream().map(this::mapToJobDto).collect(Collectors.toList());
+        return jobs.stream().map(job -> mapToJobDto(job, true)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<JobDto> getJobsByCompanyId(long companyId) {
+        Company company = returnCompanyOrThrowError(companyId);
+        List<Job> jobs = jobRepository.findByCompanyId(company.getId());
+
+        return jobs.stream().map(job -> mapToJobDto(job, false)).collect(Collectors.toList());
     }
 
     @Override
@@ -127,7 +135,7 @@ public class JobServiceImpl implements JobService {
 
         List<Job> jobs = jobRepository.findAll(Sort.by(sortDirectionType, "postedAt"));
 
-        return jobs.stream().map(this::mapToJobDto).collect(Collectors.toList());
+        return jobs.stream().map(job -> mapToJobDto(job, true)).collect(Collectors.toList());
     }
 
     @Override
@@ -179,6 +187,8 @@ public class JobServiceImpl implements JobService {
             }
         }
 
+        dto.setId(company.getId());
+        dto.setCreatedBy(company.getCreatedBy().getId());
         dto.setName(company.getName());
         dto.setWebsite(company.getWebsite());
         dto.setNumEmployees(company.getNumEmployees());
@@ -187,7 +197,7 @@ public class JobServiceImpl implements JobService {
         return dto;
     }
 
-    private JobDto mapToJobDto(Job job) {
+    private JobDto mapToJobDto(Job job, boolean fetchCompany) {
         Company company = job.getCompany();
         Category category = job.getCategory();
 
@@ -197,7 +207,7 @@ public class JobServiceImpl implements JobService {
         dto.setCountry(job.getCountry());
         dto.setCity(job.getCity());
         dto.setCategory(category.getName());
-        dto.setCompany(getCompanyDto(company));
+        if(fetchCompany) dto.setCompany(getCompanyDto(company));
         dto.setType(job.getType().toString());
         dto.setPosition(job.getPosition());
         dto.setPostedAt(job.getPostedAt());
