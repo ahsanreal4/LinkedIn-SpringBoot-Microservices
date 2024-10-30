@@ -5,6 +5,7 @@ LinkedIn Api made with Spring Boot and Microservices<br/><br/>
 - Authentication and Authorization using JWT
 - Intercommunication between Microservices
 - Circuit breaker using Spring Resillience
+- File upload to Cloudinary
 - Database connection pooling
 <br/><br/>
 
