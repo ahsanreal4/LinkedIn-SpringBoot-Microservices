@@ -1,4 +1,10 @@
-LinkedIn Api made with Spring Boot and Microservices<br/><br/>
+LinkedIn Api made with Spring Boot and Microservices
+## Architecture
+![image](https://github.com/user-attachments/assets/084704de-b083-444a-88ee-4ec35db92f90)
+
+
+
+
 **This project demonstrates following API concepts<br/>**
 - Api Gateway ( Routing, Authentication, Authorization, Rate Limiting )
 - Services registration and discovery using Eureka Server
