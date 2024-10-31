@@ -1,0 +1,8 @@
+/api-gateway/src/main/resources/application-prod.properties
+/auth-service/src/main/resources/application-prod.properties
+/file-service/src/main/resources/application-prod.properties
+/users-service/src/main/resources/application-prod.properties
+/chat-service/src/main/resources/application-prod.properties
+/post-service/src/main/resources/application-prod.properties
+/company-job-service/src/main/resources/application-prod.properties
+
