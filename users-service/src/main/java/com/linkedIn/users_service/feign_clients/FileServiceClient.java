@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.multipart.MultipartFile;
 
-@FeignClient(name="file-service", url="http://localhost:8084")
+@FeignClient(name="file-service", url="${file.service.url}")
 public interface FileServiceClient {
 
     @PostMapping(value = "/api/files", consumes = "multipart/form-data")
