@@ -1,5 +1,3 @@
-API Link: https://api-gateway-production-764b.up.railway.app
-
 LinkedIn Api made with Spring Boot and Microservices
 ## Architecture
 ![image](https://github.com/user-attachments/assets/084704de-b083-444a-88ee-4ec35db92f90)
@@ -9,7 +7,7 @@ LinkedIn Api made with Spring Boot and Microservices
 
 **This project demonstrates following API concepts<br/>**
 - Api Gateway ( Routing, Authentication, Authorization, Rate Limiting )
-- Services registration and discovery using Eureka Server
+- Services registration and discovery, load balancing using Eureka Server
 - Authentication and Authorization using JWT
 - Intercommunication between Microservices
 - Circuit breaker using Spring Resillience
